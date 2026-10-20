@@ -1,1 +1,122 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#101b21"><meta name="description" content="MilestoneProof — independent, challengeable freelance milestone acceptance on GenLayer"><title>MilestoneProof — Govern the handoff</title><link rel="stylesheet" href="/styles.css"></head><body><div class="shell"><aside class="sidebar"><a class="brand" href="#overview" aria-label="MilestoneProof home"><span class="glyph">M<span>.</span></span><span>milestone<span class="brand-accent">proof</span></span></a><p class="side-caption">TRUST WORKSPACE</p><nav aria-label="Primary navigation"><button data-page="Overview" class="active"><span>▧</span> Overview</button><button data-page="Milestones"><span>◈</span> Milestones</button><button data-page="Evidence"><span>≋</span> Evidence</button><button data-page="Process"><span>⟳</span> Process</button><button data-page="On-chain"><span>⌁</span> On-chain workspace</button></nav><div class="sidebar-bottom"><p class="side-caption">CURRENT RELEASE</p><div class="network"><span class="pulse"></span><span>GenLayer Studionet<br><small>61999 · Live V1</small></span></div><div class="note">Independent GenVM consensus. Policy-bound outcomes. No escrow or automated payment.</div></div></aside><main><header class="topbar"><span>WORKSPACE <b>/ <span id="page-title">Overview</span></b></span><span class="right-top"> <span class="demo-pill">STUDIONET VERIFIED · REVIEW PENDING</span><a href="https://docs.genlayer.com/developers" target="_blank" rel="noreferrer">GenLayer docs ↗</a></span></header><section id="content" aria-live="polite"></section><footer>MilestoneProof / An intelligent contract, not a payment processor · Source evidence must be independently verified</footer></main></div><script>window.APP={label:'MILESTONEPROOF',name:'MilestoneProof'};window.CONTRACT_ADDRESS='0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9';window.RELEASE_QUALIFIED=true;</script><script type="module" src="/app.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101b21">
+  <meta name="description" content="MilestoneProof — independent, challengeable freelance milestone acceptance on GenLayer">
+  <title>MilestoneProof — Govern the handoff</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="landing-active">
+  <!-- Dedicated Landing Header: Logo + ONLY Enter App -->
+  <header class="landing-header" id="landing-header">
+    <div class="landing-brand">
+      <span class="glyph">M<span>.</span></span>
+      <strong>MILESTONEPROOF<span class="brand-accent">.</span></strong>
+    </div>
+    <div class="landing-nav-actions">
+      <button class="enter-app-btn" id="nav-enter-app-btn" type="button">⚡ Enter App ↗</button>
+    </div>
+  </header>
+
+  <!-- Dedicated Landing Page Container -->
+  <div class="landing-container" id="landing-container">
+    <section class="landing-hero">
+      <div class="overline">EVIDENCE-FIRST MILESTONE GOVERNANCE / GENLAYER</div>
+      <h1>Milestones approved on trust.<br><em>Execution requires proof.</em></h1>
+      <p class="landing-lede">
+        MilestoneProof enforces independent, challengeable freelance deliverable acceptance on GenLayer Studionet. Interpret natural-language criteria with validator consensus without relinquishing deterministic financial control.
+      </p>
+      <div class="landing-cta-row">
+        <button class="enter-app-hero-btn" id="hero-enter-app-btn" type="button">⚡ Enter App ↗</button>
+        <a class="secondary-btn" href="#how-it-works">How it works ↓</a>
+      </div>
+      <div class="landing-network-tag">
+        <span class="pulse"></span>
+        <span>GENLAYER STUDIONET · CHAIN 61999 · CANONICAL INTELLIGENT CONTRACT</span>
+      </div>
+    </section>
+
+    <!-- Bento Features Grid -->
+    <section class="landing-bento" id="how-it-works">
+      <div class="bento-card">
+        <div class="bento-badge">01 / IMMUTABILITY</div>
+        <h3>Frozen Scope & Criteria</h3>
+        <p>The creator records agreed scope, payable basis, criteria, and deadlines. Once frozen, terms cannot be unilaterally altered.</p>
+      </div>
+      <div class="bento-card">
+        <div class="bento-badge">02 / ATTESTATION</div>
+        <h3>Designated Attestor Proof</h3>
+        <p>An independent witness wallet vouches for the exact digest of delivery records, binding real evidence to on-chain state.</p>
+      </div>
+      <div class="bento-card">
+        <div class="bento-badge">03 / CONSENSUS</div>
+        <h3>Semantic Validator Consensus</h3>
+        <p>Independent GenLayer validators evaluate four strict boolean predicates: scope, criteria met, defect, and evidence sufficiency.</p>
+      </div>
+    </section>
+
+    <!-- Trust Boundaries & Safety -->
+    <section class="landing-boundaries">
+      <div class="card">
+        <span class="caption">PROVABLE BOUNDARIES</span>
+        <h3>Built for Security & Non-Custodial Integrity</h3>
+        <div class="audit-grid">
+          <div class="line">◈ <strong>4 Strict Boolean Predicates:</strong> Ambiguity resolved via bounded consensus.</div>
+          <div class="line">◈ <strong>Zero Custody:</strong> No funds held in escrow, no token transfer or automatic drains.</div>
+          <div class="line">◈ <strong>Two-Party Appeal Rights:</strong> Both parties have distinct challenge slots.</div>
+          <div class="line">◈ <strong>Hash-Linked Audit Lineage:</strong> Every case transition is cryptographically verifiable.</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- Operational Workspace Shell (Hidden on Landing, Revealed on /app) -->
+  <div class="shell" id="app-shell">
+    <aside class="sidebar">
+      <div class="brand-row">
+        <div class="brand">
+          <span class="glyph">M<span>.</span></span>
+          <span>milestone<span class="brand-accent">proof</span></span>
+        </div>
+        <button class="back-to-landing-btn" id="sidebar-back-landing" type="button">← Landing</button>
+      </div>
+      <p class="side-caption">TRUST WORKSPACE</p>
+      <nav aria-label="Primary navigation">
+        <button data-page="Overview" class="active"><span>▧</span> Overview</button>
+        <button data-page="Milestones"><span>◈</span> Milestones</button>
+        <button data-page="Evidence"><span>≋</span> Evidence</button>
+        <button data-page="Process"><span>⟳</span> Process</button>
+        <button data-page="On-chain"><span>⌁</span> On-chain workspace</button>
+      </nav>
+      <div class="sidebar-bottom">
+        <p class="side-caption">CURRENT RELEASE</p>
+        <div class="network">
+          <span class="pulse"></span>
+          <span>GenLayer Studionet<br><small>61999 · Live V1</small></span>
+        </div>
+        <div class="note">Independent GenVM consensus. Policy-bound outcomes. No escrow or automated payment.</div>
+      </div>
+    </aside>
+    <main>
+      <header class="topbar">
+        <span>WORKSPACE <b>/ <span id="page-title">Overview</span></b></span>
+        <div class="right-top">
+          <span class="demo-pill">STUDIONET · 61999</span>
+          <button class="workspace-wallet-btn" id="workspace-wallet-trigger" type="button">Connect Wallet ↗</button>
+        </div>
+      </header>
+      <section id="content" aria-live="polite"></section>
+      <footer>MilestoneProof / An intelligent contract, not a payment processor · Source evidence must be independently verified</footer>
+    </main>
+  </div>
+
+  <script>
+    window.APP={label:'MILESTONEPROOF',name:'MilestoneProof'};
+    window.CONTRACT_ADDRESS='0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9';
+    window.RELEASE_QUALIFIED=true;
+  </script>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
