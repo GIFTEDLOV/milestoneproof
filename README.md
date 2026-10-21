@@ -1,53 +1,107 @@
-# MilestoneProof
+<p align="center">
+  <img src="docs/assets/logo.svg" alt="MilestoneProof logo" width="88" />
+</p>
 
-[![exact-source-quality](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml/badge.svg)](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml)
-[![exact-release-qualification](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml/badge.svg)](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml)
+<h1 align="center">MilestoneProof</h1>
 
-**GenLayer Studionet (Chain ID 61999) — Intelligent Contract and Production DApp for Freelance Milestone Governance.**
+<p align="center"><strong>Govern the handoff. Ship code, not broken trust.</strong></p>
 
-Govern freelance and enterprise milestones with frozen acceptance criteria, third-party attested evidence digests, independent GenVM validator consensus, and enforceable challenge windows.
+<p align="center">
+  Evidence-first freelance and software milestone acceptance governed by GenLayer Intelligent Contracts — frozen acceptance criteria, independent attestor digests, 4-predicate validator consensus, non-custodial milestone calculations, and two-party appeal windows.
+</p>
+
+<p align="center">
+  <a href="https://milestoneproof-genlayer.vercel.app">Live DApp</a> ·
+  <a href="https://milestoneproof-genlayer.vercel.app/app">Operational Workspace</a> ·
+  <a href="https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9">Studionet Explorer</a> ·
+  <a href="docs/SUBMISSION.md">Portal Submission</a> ·
+  <a href="docs/SECURITY.md">Security Boundaries</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml"><img src="https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml/badge.svg" alt="exact-source-quality" /></a>
+  <a href="https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml"><img src="https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml/badge.svg" alt="exact-release-qualification" /></a>
+</p>
 
 ---
 
-## 1. Live Deployment & Production Application
+## 1. Live Application UI & Visual Walkthrough
 
-- **Live Production DApp**: [https://milestoneproof-genlayer.vercel.app](https://milestoneproof-genlayer.vercel.app)
-- **Direct Workspace Route**: [https://milestoneproof-genlayer.vercel.app/app](https://milestoneproof-genlayer.vercel.app/app)
-- **GenLayer Studionet Explorer**: [`0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9`](https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9)
+### Dedicated Landing Page (`/`)
+*Educational, high-converting presentation featuring clear problem statement, value proposition bento, trust boundaries, and header with strictly the brand logo and `⚡ Enter App ↗` action.*
+
+![MilestoneProof Landing Page](docs/assets/milestoneproof-landing.png)
+
+---
+
+### Operational Workspace (`/app`)
+*Full contractor and client operational suite with tabbed navigation, acceptance lifecycle progress, and deterministic metrics.*
+
+![MilestoneProof Operational Workspace](docs/assets/milestoneproof-workspace.png)
+
+---
+
+### On-Chain Case Registry (Live Studionet RPC)
+*Dynamic case index querying canonical cases directly from GenLayer Studionet RPC (Chain ID `61999`) with real-time detail inspection.*
+
+![MilestoneProof Case Registry](docs/assets/milestoneproof-case-registry.png)
+
+---
+
+### Interactive Case Creator & Web3 Wallet
+*Full on-chain management workspace: connect MetaMask or any EIP-1193 provider to Studionet, create custom milestone terms, submit evidence digests, and broadcast transactions with real-time finality tracking.*
+
+![MilestoneProof On-Chain Interactive Workspace](docs/assets/milestoneproof-onchain-workspace.png)
+
+---
+
+### Mobile 390px Viewport (0px Horizontal Overflow)
+*Audited responsive layout with wrapped controls and scrolling navigation, guaranteeing 0px horizontal overflow (`scrollWidth == innerWidth == 390px`).*
+
+<p align="center">
+  <img src="docs/assets/milestoneproof-mobile-390.png" alt="MilestoneProof Mobile 390px Viewport" width="390" />
+</p>
+
+---
+
+## 2. On-Chain Deployment & Bytecode Parity
+
+- **Network**: GenLayer Studionet (Chain ID `61999`, RPC `https://studio.genlayer.com/api`)
+- **Deployed Address**: [`0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9`](https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9)
 - **Deployed Python Source SHA-256**: `1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b`
 - **Deployment Transaction**: `0x7ab4dad98b090ca61919141fe7968f495239af117e7aed3503cb426c5e82aaab`
 - **Canonical Demonstration Case**: `GNEW-milestoneproof-39238668302`
   - Status: `FINALIZED`
-  - Deliberation: Round `2`
-  - Consensus Verdict: `REVIEW_REQUIRED`
+  - Rounds: `2`
+  - Verdict: `REVIEW_REQUIRED`
   - Challenges: `2` (both creator and client appeal slots exercised)
   - GenVM Consensus: `MAJORITY_AGREE`
 
 ---
 
-## 2. Core Architecture & Native GenLayer Justification
+## 3. Core Architecture & Native GenLayer Justification
 
-Freelance deliverables are inherently ambiguous: scope boundaries, acceptance test passing rates, and material defect claims depend on natural-language context. Traditional smart contracts cannot interpret complex deliverables or test suites without centralizing trust into an admin key.
+Freelance milestones inherently suffer from subjective disputes: scope boundaries, acceptance test passing rates, and alleged defects depend on natural-language context. Traditional smart contracts cannot interpret complex deliverables (such as GitHub source archives or diagnostic logs) without centralizing trust into an admin key.
 
-### Acceptance Lifecycle:
+### 4-Phase Acceptance Lifecycle:
 1. **Terms Sealed (`create_case` & `consent`)**: Creator records agreed scope, acceptance criteria, milestone budget basis, and deadline. Counterparty explicitly consents before terms are frozen.
-2. **Independent Attestation (`submit_evidence` & `attest_evidence`)**: Delivery records are locked with a cryptographic digest. A designated independent attestor vouches for the record digest.
-3. **Validator Consensus (`adjudicate`)**: Leader and validators independently interpret four strict boolean predicates:
-   - `deliverable_in_scope`
-   - `acceptance_criteria_met`
-   - `material_defect_supported`
-   - `evidence_sufficient`
+2. **Independent Attestation (`submit_evidence` & `attest_evidence`)**: Delivery records are locked with a cryptographic SHA-256 digest. A designated independent attestor vouches for the record digest.
+3. **Validator Consensus (`adjudicate`)**: Leader and validators independently interpret four strict boolean predicates via `gl.vm.run_nondet_unsafe`:
+   - `deliverable_in_scope`: Does the work correspond to the agreed specification?
+   - `acceptance_criteria_met`: Are all core functional requirements satisfied?
+   - `material_defect_supported`: Is there affirmative proof of broken critical flows?
+   - `evidence_sufficient`: Is the documentation complete and verifiable?
 4. **Challenge & Finality (`challenge` & `finalize_case`)**: Both parties hold distinct challenge slots. If challenged, a second round re-evaluates all evidence before deterministic finalization.
 
 ---
 
-## 3. Automated Verification & Testing
+## 4. Automated Verification & Testing
 
 ### A. Run All Unit & Adversarial Tests
 ```bash
 python -m pytest -v
 ```
-*36/36 tests pass: includes mock GenLayer regression, adversarial red-team prompt injections, attestor spoofing, fraction and budget bounds, and repository isolation.*
+*32/32 tests pass: includes mock GenLayer regression, adversarial red-team prompt injections, budget bounds, attestor spoofing, and repository isolation.*
 
 ### B. Live End-to-End On-Chain Audit
 ```bash
@@ -59,23 +113,13 @@ node tests/test_live_e2e.mjs
 ```bash
 cd web && npm run check && npm run build
 ```
-*Builds the production Vite bundle with 0 errors and asserts mobile 390px viewport compliance.*
+*Builds the production Vite bundle with 0 errors.*
 
 ### D. Secret Leak Audit
 ```bash
 node scripts/secret_scan.mjs
 ```
 *Scans all repository files to guarantee zero leaked private keys, API tokens, or secrets.*
-
----
-
-## 4. Documentation & Portal Links
-
-- [Portal Submission Dossier](docs/SUBMISSION.md)
-- [Submission Fields (JSON)](docs/SUBMISSION_FIELDS.json)
-- [Deployment Provenance](docs/DEPLOYMENT.md)
-- [Security Review](docs/SECURITY.md)
-- [Release Gates](docs/RELEASE_GATES.md)
 
 ---
 

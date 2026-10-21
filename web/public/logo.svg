@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" fill="none">
+  <defs>
+    <linearGradient id="mpGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c3f578"/>
+      <stop offset="100%" stop-color="#78ba33"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#18272c"/>
+      <stop offset="100%" stop-color="#0d171d"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+
+  <!-- Outer Rounded Diamond Shield -->
+  <rect x="12" y="12" width="96" height="96" rx="24" fill="url(#bgGrad)" stroke="#344349" stroke-width="2.5"/>
+
+  <!-- Milestone Node Ring (3 Verification Nodes) -->
+  <circle cx="60" cy="32" r="5" fill="#c3f578" filter="url(#glow)"/>
+  <circle cx="36" cy="76" r="4.5" fill="#c3f578" opacity="0.85"/>
+  <circle cx="84" cy="76" r="4.5" fill="#c3f578" opacity="0.85"/>
+
+  <!-- Interconnecting Consensus Arcs -->
+  <path d="M60 32 L36 76 M60 32 L84 76 M36 76 L84 76" stroke="#3c5438" stroke-width="2" stroke-dasharray="3 3"/>
+
+  <!-- Central Bold Geometric "M" Form -->
+  <path d="M42 72 L42 46 L60 62 L78 46 L78 72" stroke="url(#mpGrad)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+
+  <!-- Cryptographic Finality Point -->
+  <circle cx="60" cy="88" r="3.5" fill="#c3f578"/>
+</svg>
