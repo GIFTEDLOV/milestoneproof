@@ -228,6 +228,13 @@ $('#nav-enter-app-btn')?.addEventListener('click', () => enterWorkspace('Overvie
 $('#hero-enter-app-btn')?.addEventListener('click', () => enterWorkspace('Overview'));
 $('#sidebar-back-landing')?.addEventListener('click', () => showLanding(true));
 
+document.querySelectorAll('[data-landing-nav]').forEach(a => {
+  a.addEventListener('click', e => {
+    e.preventDefault();
+    enterWorkspace(a.dataset.landingNav || 'Overview');
+  });
+});
+
 $('#workspace-wallet-trigger')?.addEventListener('click', () => {
   render('On-chain');
   document.getElementById('chain-wallet')?.click();
@@ -242,6 +249,192 @@ window.addEventListener('popstate', () => {
     showLanding(false);
   }
 });
+
+// Video Sync & Reduced Motion
+const vids = Array.from(document.querySelectorAll('#landing-stage video'));
+const master = vids[0];
+const motionReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+if (motionReduced) {
+  vids.forEach(v => {
+    v.removeAttribute('autoplay');
+    v.pause();
+  });
+} else if (master) {
+  master.addEventListener('timeupdate', () => {
+    const mt = master.currentTime;
+    for (let i = 1; i < vids.length; i++) {
+      const v = vids[i];
+      if (Math.abs(v.currentTime - mt) > 0.12) {
+        v.currentTime = mt;
+      }
+    }
+  });
+}
+
+// WAAPI Entrance Choreography
+if (!motionReduced && document.documentElement.classList.contains('intro')) {
+  const probe = document.getElementById('s-probe');
+  const getScale = () => (probe?.getBoundingClientRect().width || 100) / 100;
+
+  const EXPO = 'cubic-bezier(.16,1,.3,1)';
+  const QUINT = 'cubic-bezier(.22,1,.36,1)';
+  const QUART = 'cubic-bezier(.25,1,.5,1)';
+  const TYPE = 'cubic-bezier(.22,.85,.24,1)';
+
+  let started = false;
+
+  const runEntrance = () => {
+    if (started) return;
+    started = true;
+
+    const s = getScale();
+    const isPhone = window.innerWidth <= 599;
+    const tf = isPhone ? 0.86 : 1.0;
+    const animations = [];
+
+    const logo = document.querySelector('.logo');
+    if (logo) {
+      animations.push(logo.animate([
+        { opacity: 0, transform: 'scale(0.9)' },
+        { opacity: 1, transform: 'scale(1)' }
+      ], {
+        delay: 0,
+        duration: 0.70 * tf * 1000,
+        easing: EXPO,
+        fill: 'forwards'
+      }));
+    }
+
+    const navLinks = Array.from(document.querySelectorAll('nav .nav-link'));
+    navLinks.forEach((link, idx) => {
+      animations.push(link.animate([
+        { opacity: 0, transform: `translateY(${7 * s}px)` },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], {
+        delay: (0.12 + idx * 0.055) * tf * 1000,
+        duration: 0.62 * tf * 1000,
+        easing: QUINT,
+        fill: 'forwards'
+      }));
+    });
+
+    const topBtn = document.querySelector('.btn-top');
+    if (topBtn) {
+      animations.push(topBtn.animate([
+        { clipPath: 'inset(0 100% 0 0)' },
+        { clipPath: 'inset(0 0% 0 0)' }
+      ], {
+        delay: 0.28 * tf * 1000,
+        duration: 0.66 * tf * 1000,
+        easing: EXPO,
+        fill: 'forwards'
+      }));
+    }
+
+    const headLines = Array.from(document.querySelectorAll('h1 .ln > span'));
+    headLines.forEach((span, idx) => {
+      animations.push(span.animate([
+        { transform: 'translateY(120%)' },
+        { transform: 'translateY(0%)' }
+      ], {
+        delay: (0.34 + idx * 0.09) * tf * 1000,
+        duration: 0.98 * tf * 1000,
+        easing: TYPE,
+        fill: 'forwards'
+      }));
+    });
+
+    const sub = document.querySelector('.sub');
+    if (sub) {
+      animations.push(sub.animate([
+        { opacity: 0, transform: `translateY(${14 * s}px)` },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], {
+        delay: 0.74 * tf * 1000,
+        duration: 0.72 * tf * 1000,
+        easing: QUINT,
+        fill: 'forwards'
+      }));
+    }
+
+    const ctaBtn = document.querySelector('.btn-cta');
+    if (ctaBtn) {
+      animations.push(ctaBtn.animate([
+        { clipPath: 'inset(0 100% 0 0)' },
+        { clipPath: 'inset(0 0% 0 0)' }
+      ], {
+        delay: 0.90 * tf * 1000,
+        duration: 0.70 * tf * 1000,
+        easing: EXPO,
+        fill: 'forwards'
+      }));
+    }
+
+    const rules = Array.from(document.querySelectorAll('.rule'));
+    rules.forEach((rule, idx) => {
+      animations.push(rule.animate([
+        { transform: 'scaleY(0)' },
+        { transform: 'scaleY(1)' }
+      ], {
+        delay: (0.98 + idx * 0.07) * tf * 1000,
+        duration: 0.60 * tf * 1000,
+        easing: QUART,
+        fill: 'forwards'
+      }));
+    });
+
+    const nums = Array.from(document.querySelectorAll('.stat .num'));
+    nums.forEach((num, idx) => {
+      animations.push(num.animate([
+        { opacity: 0, transform: `translateY(${12 * s}px)` },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], {
+        delay: (1.04 + idx * 0.085) * tf * 1000,
+        duration: 0.66 * tf * 1000,
+        easing: QUINT,
+        fill: 'forwards'
+      }));
+    });
+
+    const labs = Array.from(document.querySelectorAll('.stat .lab'));
+    labs.forEach((lab, idx) => {
+      animations.push(lab.animate([
+        { opacity: 0, transform: `translateY(${10 * s}px)` },
+        { opacity: 1, transform: 'translateY(0)' }
+      ], {
+        delay: (1.10 + idx * 0.085) * tf * 1000,
+        duration: 0.62 * tf * 1000,
+        easing: QUINT,
+        fill: 'forwards'
+      }));
+    });
+
+    Promise.all(animations.map(a => a.finished.catch(() => {}))).then(cleanup);
+    setTimeout(cleanup, 4000);
+
+    function cleanup() {
+      document.documentElement.classList.remove('intro');
+      animations.forEach(a => {
+        try { a.cancel(); } catch (e) {}
+      });
+    }
+  };
+
+  const fontTimer = setTimeout(() => requestAnimationFrame(runEntrance), 1000);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      clearTimeout(fontTimer);
+      requestAnimationFrame(runEntrance);
+    }).catch(() => {
+      clearTimeout(fontTimer);
+      requestAnimationFrame(runEntrance);
+    });
+  }
+  setTimeout(runEntrance, 1200);
+} else {
+  document.documentElement.classList.remove('intro');
+}
 
 // Initial route determination
 const initialPath = window.location.pathname;
