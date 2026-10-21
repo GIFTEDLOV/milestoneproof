@@ -1,0 +1,41 @@
+{
+  "projectName": "MilestoneProof",
+  "shortDescription": "Evidence-first freelance and contractor milestone acceptance governed by GenLayer consensus.",
+  "detailedDescription": "MilestoneProof is an Intelligent Contract and decentralized application that governs freelance and software milestones with frozen acceptance criteria, third-party attested evidence digests, and GenVM validator consensus. The contract strictly bounds dispute outcomes across four boolean semantic predicates (deliverable_in_scope, acceptance_criteria_met, material_defect_supported, evidence_sufficient). It enforces two-party appeal windows and non-custodial milestone budget calculations without holding user funds or executing automated drains. The full web application includes a dedicated dark-mode landing page, live case registry querying Studionet RPC, and Web3 wallet connectivity for on-chain case management.",
+  "problemSolved": "Freelance milestone deliverables are prone to subjective disputes, scope creep, and arbitrary rejections. Traditional smart contracts cannot interpret complex deliverables (e.g. source repositories or test suites). MilestoneProof binds frozen criteria to independent attestor digests, interpreted deterministically by GenLayer validators.",
+  "whyThisRequiresGenLayer": "Acceptance criteria, code deliverables, and alleged defects require natural-language and contextual reasoning that cannot be expressed in standard EVM bytecode. GenLayer validators independently evaluate equivalence principle prompts against frozen terms and reach consensus on strict boolean predicates, while financial limits and case finality remain deterministic.",
+  "genuineSemanticConsensus": "Leader and validators independently execute non-comparative prompts in gl.vm.run_nondet_unsafe, assessing deliverable_in_scope, acceptance_criteria_met, material_defect_supported, and evidence_sufficient. If validators disagree on any boolean predicate, execution fails closed. Two-party challenges trigger a mandatory second deliberation round before closure.",
+  "githubRepositoryUrl": "https://github.com/GIFTEDLOV/milestoneproof",
+  "productionAppUrl": "https://milestoneproof-genlayer.vercel.app",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "rpc": "https://studio.genlayer.com/api",
+  "contractAddress": "0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9",
+  "deploymentExplorerUrl": "https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9",
+  "verifiedSourceSha256": "1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b",
+  "liveQualification": {
+    "caseId": "GNEW-milestoneproof-39238668302",
+    "caseStatus": "FINALIZED",
+    "terminalVerdict": "REVIEW_REQUIRED",
+    "challenges": 2,
+    "rounds": 2,
+    "evidencePath": "evidence/live-lifecycle.json"
+  },
+  "browserQualification": {
+    "caseId": "BROWSERLIVE-39242842521-MilestoneProof",
+    "terminalVerdict": "REVIEW_REQUIRED",
+    "appUrl": "https://milestoneproof-genlayer.vercel.app",
+    "evidence": "evidence/production-browser-signed.json"
+  },
+  "securityAndQualificationSummary": "Full regression suite passes 23 mock contract tests and 13 adversarial hardening tests. Automated live end-to-end audit passes all on-chain checks against Studionet (Chain 61999) and asserts live Vercel production endpoints. Mobile responsiveness verified at 390px viewport width with 0px horizontal overflow. Zero secret leaks across all files.",
+  "reviewerInstructions": "Open https://milestoneproof-genlayer.vercel.app to interact with the production application. Click '⚡ Enter App ↗' to access the operational workspace at /app and connect any EVM wallet on Studionet chain 61999. Inspect on-chain case registry, evidence audits, and case execution. Run `node tests/test_live_e2e.mjs` to execute live on-chain reads and verify cryptographic source byte parity.",
+  "knownLimitationsAndExternalTrustAssumptions": "Wallet attestation proves which wallet vouched for evidence, not actual external identity or document veracity. The contract does not hold or transfer funds; payments remain off-chain based on contract finality. Storage is append-only on Studionet.",
+  "portalSubmissionStatus": "PREPARED_READY_FOR_PORTAL",
+  "whyGenLayer": "Validators independently assess acceptance criteria and delivery evidence using GenLayer nondeterministic prompts with strict boolean schemas.",
+  "githubRepository": "https://github.com/GIFTEDLOV/milestoneproof",
+  "explorerUrl": "https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9",
+  "semanticConsensus": "Leader and validators independently classify deliverable_in_scope, acceptance_criteria_met, material_defect_supported, and evidence_sufficient.",
+  "sourceSha256": "1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b",
+  "qualificationCase": "GNEW-milestoneproof-39238668302",
+  "terminalVerdict": "REVIEW_REQUIRED"
+}

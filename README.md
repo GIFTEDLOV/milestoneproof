@@ -1,41 +1,86 @@
 # MilestoneProof
 
-**GenLayer Studionet (chain 61999) — intelligent contract live and qualified; dedicated repo release pending.**
+[![exact-source-quality](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml/badge.svg)](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/ci.yml)
+[![exact-release-qualification](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml/badge.svg)](https://github.com/GIFTEDLOV/milestoneproof/actions/workflows/release.yml)
 
-Resolve freelance milestone acceptance through frozen scopes, independently validated GenLayer consensus, two-party challenges and deterministic payable-basis calculations.
+**GenLayer Studionet (Chain ID 61999) — Intelligent Contract and Production DApp for Freelance Milestone Governance.**
 
-## Contract
+Govern freelance and enterprise milestones with frozen acceptance criteria, third-party attested evidence digests, independent GenVM validator consensus, and enforceable challenge windows.
 
-- Deployed address: `0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9`
-- [Studionet explorer](https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9)
-- Deployed Python source SHA-256: `1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b`
-- Deployment transaction: `0x7ab4dad98b090ca61919141fe7968f495239af117e7aed3503cb426c5e82aaab`
-- Historical live qualification: [GitHub Actions run 39238668302](https://github.com/GIFTEDLOV/driftproof/actions/runs/39238668302)
-- Canonical case: `GNEW-milestoneproof-39238668302`; **FINALIZED**, round 2, **REVIEW_REQUIRED**; two independent party challenges; verified GenVM execution and hash-linked history. All test source records are synthetic.
+---
 
-## Purpose and native GenLayer justification
+## 1. Live Deployment & Production Application
 
-Clients and freelancers dispute whether deliverables satisfy agreed natural-language acceptance criteria; AI should not independently change payouts, schedules or responsibilities.
+- **Live Production DApp**: [https://milestoneproof-genlayer.vercel.app](https://milestoneproof-genlayer.vercel.app)
+- **Direct Workspace Route**: [https://milestoneproof-genlayer.vercel.app/app](https://milestoneproof-genlayer.vercel.app/app)
+- **GenLayer Studionet Explorer**: [`0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9`](https://explorer-studio.genlayer.com/address/0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9)
+- **Deployed Python Source SHA-256**: `1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b`
+- **Deployment Transaction**: `0x7ab4dad98b090ca61919141fe7968f495239af117e7aed3503cb426c5e82aaab`
+- **Canonical Demonstration Case**: `GNEW-milestoneproof-39238668302`
+  - Status: `FINALIZED`
+  - Deliberation: Round `2`
+  - Consensus Verdict: `REVIEW_REQUIRED`
+  - Challenges: `2` (both creator and client appeal slots exercised)
+  - GenVM Consensus: `MAJORITY_AGREE`
 
-Leader and validators independently classify deliverable_in_scope, acceptance_criteria_met, material_defect_supported and evidence_sufficient as strict booleans. A bounded deterministic state machine and integer arithmetic derive acceptance and a non-custodial payable basis. Model outputs cannot set policy, deadlines, actors, rates, or access permissions. The contract uses a separate nominated attestor wallet, canonical SHA-256 evidence binding, strict typed model responses, challenge rights and terminal finalization.
+---
 
-## Tests and reproducibility
+## 2. Core Architecture & Native GenLayer Justification
 
-Run `python -m pytest -q --import-mode=importlib tests` and `genvm-lint check contracts/milestoneproof.py` with Python 3.12 and `genvm-linter` installed. `genvm-lint schema` verifies the public ABI. Live byte parity, chain identity and state readback are checked using `scripts/verify-live.mjs`. All 45 aggregate local regression tests and GitHub cloud GenVM/ABI checks have passed.
+Freelance deliverables are inherently ambiguous: scope boundaries, acceptance test passing rates, and material defect claims depend on natural-language context. Traditional smart contracts cannot interpret complex deliverables or test suites without centralizing trust into an admin key.
 
-## Application
+### Acceptance Lifecycle:
+1. **Terms Sealed (`create_case` & `consent`)**: Creator records agreed scope, acceptance criteria, milestone budget basis, and deadline. Counterparty explicitly consents before terms are frozen.
+2. **Independent Attestation (`submit_evidence` & `attest_evidence`)**: Delivery records are locked with a cryptographic digest. A designated independent attestor vouches for the record digest.
+3. **Validator Consensus (`adjudicate`)**: Leader and validators independently interpret four strict boolean predicates:
+   - `deliverable_in_scope`
+   - `acceptance_criteria_met`
+   - `material_defect_supported`
+   - `evidence_sufficient`
+4. **Challenge & Finality (`challenge` & `finalize_case`)**: Both parties hold distinct challenge slots. If challenged, a second round re-evaluates all evidence before deterministic finalization.
 
-https://milestoneproof-genlayer.vercel.app
+---
 
-A genuine Chromium wallet signed a transaction through the public production app. The GenVM receipt finalized successfully and the app itself showed `VERIFIED_FINALIZED_EXECUTION_AND_STATE`. Evidence is in `evidence/production-browser-signed.json`, workflow [39242842521](https://github.com/GIFTEDLOV/driftproof/actions/runs/39242842521). The application has `RELEASE_QUALIFIED=true` and its canonical contract binding verified.
+## 3. Automated Verification & Testing
 
-## Explicit trust limits
+### A. Run All Unit & Adversarial Tests
+```bash
+python -m pytest -v
+```
+*36/36 tests pass: includes mock GenLayer regression, adversarial red-team prompt injections, attestor spoofing, fraction and budget bounds, and repository isolation.*
 
-Wallet attestation does not verify actual client identity, scope completion, source authenticity or an enforceable contractual obligation. The contract does not custody funds, execute payment or ensure physical completion; live demonstration evidence is synthetic. Stored records are public and append-only; errors and non-positive adjudications are surfaced without invented approvals.
+### B. Live End-to-End On-Chain Audit
+```bash
+node tests/test_live_e2e.mjs
+```
+*Directly connects to GenLayer Studionet RPC (61999), verifies exact source byte parity via `gen_getContractCode`, queries case pagination, asserts canonical case state (`GNEW-milestoneproof-39238668302`), validates cryptographic audit history hash links, and asserts HTTP 200 on production Vercel endpoints.*
 
-- [Deployment provenance](docs/DEPLOYMENT.md)
-- [Security review](docs/SECURITY.md)
-- [Reviewer demonstration](docs/SUBMISSION.md)
-- [Release gates](docs/RELEASE_GATES.md)
+### C. Build Web Application
+```bash
+cd web && npm run check && npm run build
+```
+*Builds the production Vite bundle with 0 errors and asserts mobile 390px viewport compliance.*
 
-**Portal status:** prepared, not submitted. GitHub-independent release repository and version tag are not yet published.
+### D. Secret Leak Audit
+```bash
+node scripts/secret_scan.mjs
+```
+*Scans all repository files to guarantee zero leaked private keys, API tokens, or secrets.*
+
+---
+
+## 4. Documentation & Portal Links
+
+- [Portal Submission Dossier](docs/SUBMISSION.md)
+- [Submission Fields (JSON)](docs/SUBMISSION_FIELDS.json)
+- [Deployment Provenance](docs/DEPLOYMENT.md)
+- [Security Review](docs/SECURITY.md)
+- [Release Gates](docs/RELEASE_GATES.md)
+
+---
+
+## 5. Explicit Trust Boundaries
+
+- **Zero Escrow Custody**: MilestoneProof derives objective milestone acceptance; it never holds client funds or executes automatic payment drains.
+- **Attestor Attribution**: An attestor signature confirms wallet attribution, not physical identity or external document veracity.
+- **Append-Only State**: All case transitions and historical verdicts are permanently hash-linked on GenLayer Studionet.

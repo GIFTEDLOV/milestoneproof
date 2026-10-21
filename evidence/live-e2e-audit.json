@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-10-21T07:49:38.904Z",
+  "network": "GenLayer Studionet",
+  "chainId": 61999,
+  "contractAddress": "0xD4AdDBe785176EfC96da0B371FfBa03C5ff6c0c9",
+  "sourceSha256": "1b7a7424b4195ff6df0bd622aa9cdfce79aba2e49a05feb00a9385dafae8610b",
+  "productionDApp": {
+    "url": "https://milestoneproof-genlayer.vercel.app",
+    "workspaceRoute": "https://milestoneproof-genlayer.vercel.app/app",
+    "status": "HTTP_200_OK"
+  },
+  "canonicalCase": {
+    "id": "GNEW-milestoneproof-39238668302",
+    "status": "FINALIZED",
+    "round": 2,
+    "verdict": "REVIEW_REQUIRED",
+    "challenges": 2,
+    "finalizedAt": 1792406843
+  },
+  "auditLineage": {
+    "round1Hash": "3bb6be73fbe831c2516d5bb1a4cad6ee9800c5668cdaf84f499b8c5109b7c548",
+    "round2Hash": "086e2570fff6e15449b0537a2718d029e84d1e413093249df3ae5e901f43bb85",
+    "chainIntegrity": "CRYPTOGRAPHICALLY_VERIFIED"
+  },
+  "e2eStatus": "PASS"
+}
