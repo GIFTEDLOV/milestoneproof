@@ -27,40 +27,31 @@
 
 ## 1. Live Application UI & Visual Walkthrough
 
-### Dedicated Landing Page (`/`)
-*Educational, high-converting presentation featuring clear problem statement, value proposition bento, trust boundaries, and header with strictly the brand logo and `⚡ Enter App ↗` action.*
+### Fixed Fullscreen Atmosphere & Landing Stage (`/`)
+*Fixed fullscreen black stage (`#000`) with looping dual-layer atmospheric video plates, exact SVG LUT color-grade filters (`#grade` & `#grade2`), left-locked Space Grotesk headline, subcopy, sharp red action button (`#c81b1c`), client metrics with vertical rule dividers, and one-shot WAAPI entrance choreography.*
 
-![MilestoneProof Landing Page](docs/assets/milestoneproof-landing.png)
+![MilestoneProof Fixed Fullscreen Stage](docs/assets/milestoneproof-landing.png)
 
 ---
 
-### Operational Workspace (`/app`)
-*Full contractor and client operational suite with tabbed navigation, acceptance lifecycle progress, and deterministic metrics.*
+### Operational Governance Workspace (`/app`)
+*Zero-collision contractor and client governance suite featuring left-anchored navigation, real-time Studionet connection telemetry, and deterministic milestone acceptance lifecycle metrics.*
 
 ![MilestoneProof Operational Workspace](docs/assets/milestoneproof-workspace.png)
 
 ---
 
-### On-Chain Case Registry (Live Studionet RPC)
-*Dynamic case index querying canonical cases directly from GenLayer Studionet RPC (Chain ID `61999`) with real-time detail inspection.*
+### Canonical On-Chain Case Registry (`Milestones` View)
+*Dynamic accordion case index querying canonical cases directly from GenLayer Studionet RPC (Chain ID `61999`) with live status badges (`FINALIZED`, `ROUND 2`), frozen agreement quotes, and designated attestation digests.*
 
 ![MilestoneProof Case Registry](docs/assets/milestoneproof-case-registry.png)
 
 ---
 
-### Interactive Case Creator & Web3 Wallet
-*Full on-chain management workspace: connect MetaMask or any EIP-1193 provider to Studionet, create custom milestone terms, submit evidence digests, and broadcast transactions with real-time finality tracking.*
+### Interactive Case Creator & On-Chain Studio (`On-chain` View)
+*Full on-chain management workspace: connect MetaMask or any EIP-1193 provider to Studionet, create custom milestone terms, submit evidence digests, broadcast transactions with real-time finality tracking, and inspect verified explorer links.*
 
-![MilestoneProof On-Chain Interactive Workspace](docs/assets/milestoneproof-onchain-workspace.png)
-
----
-
-### Mobile 390px Viewport (0px Horizontal Overflow)
-*Audited responsive layout with wrapped controls and scrolling navigation, guaranteeing 0px horizontal overflow (`scrollWidth == innerWidth == 390px`).*
-
-<p align="center">
-  <img src="docs/assets/milestoneproof-mobile-390.png" alt="MilestoneProof Mobile 390px Viewport" width="390" />
-</p>
+![MilestoneProof On-Chain Studio](docs/assets/milestoneproof-onchain-workspace.png)
 
 ---
 
