@@ -25,6 +25,88 @@ const evidence = () => `<section class="hero"><span class="overline">SOURCE INTE
 
 const process = () => `<section class="hero"><span class="overline">ONE RULESET · TWO PARTIES</span><h1>Govern the <em>handoff.</em></h1><p>Fewer unilateral reversals, clearer criteria, transparent case history and reviewable outcomes.</p></section><div class="grid-2"><div class="surface">${steps()}</div>${featured}</div>`;
 
+const shortAddr = addr => {
+  const s = String(addr || '');
+  return s.length > 12 ? `${s.slice(0, 6)}…${s.slice(-4)}` : s;
+};
+
+const statusClass = status => String(status || '').toLowerCase().replace(/[^a-z0-9_]/g, '');
+
+const renderInspectorPanel = c => {
+  const challenges = Array.isArray(c.challenges) ? c.challenges : [];
+  return `
+    <div class="inspector-meta-grid">
+      <div class="meta-cell">
+        <span class="meta-label">Contract Status</span>
+        <span class="meta-value">${safe(c.status || 'UNKNOWN')}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Consensus Verdict</span>
+        <span class="meta-value" style="color:var(--accent-lime);">${safe(c.result || 'PENDING')}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Consensus Round</span>
+        <span class="meta-value">${safe(c.round || 1)} of 2</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Milestone Budget</span>
+        <span class="meta-value">${Number(c.gross_minor || 0).toLocaleString()} minor units</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Release Ratio</span>
+        <span class="meta-value">${safe(c.rate_num || 0)} / ${safe(c.rate_den || 1)}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Approved Payable Basis</span>
+        <span class="meta-value">${Number(c.payable_minor || 0).toLocaleString()} minor units</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Creator</span>
+        <span class="meta-address" title="${safe(c.creator)}">${safe(shortAddr(c.creator))}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Counterparty</span>
+        <span class="meta-address" title="${safe(c.recipient)}">${safe(shortAddr(c.recipient))}</span>
+      </div>
+      <div class="meta-cell">
+        <span class="meta-label">Attestor</span>
+        <span class="meta-address" title="${safe(c.attestor)}">${safe(shortAddr(c.attestor))} ${c.attested ? '✓ Attested' : ''}</span>
+      </div>
+    </div>
+
+    ${c.rule ? `
+    <div class="inspector-block">
+      <div class="inspector-block-title">Frozen Acceptance Criteria & Agreement Scope</div>
+      <div class="inspector-block-content">${safe(c.rule)}</div>
+    </div>` : ''}
+
+    ${c.evidence ? `
+    <div class="inspector-block evidence">
+      <div class="inspector-block-title">Designated Attestation & Evidence Submission</div>
+      <div class="inspector-block-content">${safe(c.evidence)}</div>
+      ${c.source_ref ? `<div style="margin-top:6px;font-size:11.5px;color:var(--text-dim);font-family:'JetBrains Mono',monospace;">Source Ref: ${safe(c.source_ref)}</div>` : ''}
+    </div>` : ''}
+
+    ${challenges.length ? `
+    <div class="inspector-block challenge">
+      <div class="inspector-block-title">Challenge Statements & Party Reconsiderations (${challenges.length})</div>
+      <div class="challenges-stack">
+        ${challenges.map(ch => `
+          <div class="challenge-entry">
+            <div class="challenge-actor">Party: ${safe(shortAddr(ch.actor))}</div>
+            <div class="challenge-text">${safe(ch.text)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <details class="json-details">
+      <summary class="json-summary">Raw GenLayer RPC Payload ({})</summary>
+      <pre class="mono" style="margin:0;border-radius:0;background:transparent;border:none;">${safe(JSON.stringify(c, null, 2))}</pre>
+    </details>
+  `;
+};
+
 let current = 'Overview';
 
 async function registry() {
@@ -32,26 +114,76 @@ async function registry() {
   if (!node) return;
   const address = window.CONTRACT_ADDRESS;
   if (!/^0x[a-f0-9]{40}$/i.test(address)) {
-    node.textContent = 'NOT DEPLOYED · Live case registry unavailable. Example milestone cases are deliberately not shown.';
+    node.innerHTML = '<div class="report-alert error">NOT DEPLOYED · Live case registry unavailable. Example milestone cases are deliberately not shown.</div>';
     return;
   }
   try {
     const { createClient } = await import('genlayer-js');
     const { studionet } = await import('genlayer-js/chains');
     const client = createClient({ chain: studionet });
+    node.innerHTML = '<div class="report-alert info"><span>⏳</span><span>Reading live case registry from GenLayer Studionet…</span></div>';
     const ids = await client.readContract({ address, functionName: 'get_case_ids_page', args: [0, 50] });
     if (!Array.isArray(ids)) throw Error('Invalid chain case array');
-    node.innerHTML = ids.length ? ids.map(id => `<div class="case-row"><b>${safe(id)}</b><button class="tab" data-case="${safe(id)}">Read case</button></div>`).join('') : 'No submitted on-chain cases yet.';
-    node.querySelectorAll('[data-case]').forEach(b => b.addEventListener('click', async () => {
+    if (!ids.length) {
+      node.innerHTML = '<div class="report-alert info">No on-chain milestone cases submitted yet. Use the On-chain workspace to register a new case.</div>';
+      return;
+    }
+
+    node.innerHTML = ids.map((id, idx) => `
+      <div class="case-card ${idx === 0 ? 'expanded' : ''}" id="card-${safe(id)}">
+        <div class="case-card-header" data-toggle="${safe(id)}">
+          <div class="case-header-left">
+            <span class="case-tag">CASE</span>
+            <span class="case-id-text">${safe(id)}</span>
+          </div>
+          <div class="case-header-right">
+            <span class="status-badge" id="badge-${safe(id)}">Loading…</span>
+            <span class="toggle-icon">▼</span>
+          </div>
+        </div>
+        <div class="case-inspector-panel" id="panel-${safe(id)}" style="${idx === 0 ? 'display:flex' : 'display:none'}">
+          <div style="font-size:12px;color:var(--text-dim);padding:8px 0;">Fetching canonical state from Studionet…</div>
+        </div>
+      </div>
+    `).join('');
+
+    // Bind accordion toggles
+    node.querySelectorAll('[data-toggle]').forEach(header => {
+      header.addEventListener('click', () => {
+        const id = header.dataset.toggle;
+        const card = document.getElementById(`card-${id}`);
+        const panel = document.getElementById(`panel-${id}`);
+        if (!card || !panel) return;
+        const willExpand = !card.classList.contains('expanded');
+        card.classList.toggle('expanded', willExpand);
+        panel.style.display = willExpand ? 'flex' : 'none';
+      });
+    });
+
+    // Asynchronously populate each case card
+    ids.forEach(async (id, idx) => {
       try {
-        const state = await client.readContract({ address, functionName: 'get_case', args: [b.dataset.case] });
-        node.insertAdjacentHTML('beforeend', `<pre class="mono">${safe(JSON.stringify(typeof state === 'string' ? JSON.parse(state) : state, null, 2))}</pre>`);
-      } catch (e) {
-        node.textContent = 'Chain read failed: ' + String(e).slice(0, 240);
+        const raw = await client.readContract({ address, functionName: 'get_case', args: [id] });
+        const c = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        const badgeNode = document.getElementById(`badge-${id}`);
+        const panelNode = document.getElementById(`panel-${id}`);
+        if (badgeNode) {
+          badgeNode.className = `status-badge ${statusClass(c.status)}`;
+          badgeNode.textContent = c.status || 'UNKNOWN';
+        }
+        if (panelNode) {
+          panelNode.innerHTML = renderInspectorPanel(c);
+        }
+      } catch (err) {
+        const panelNode = document.getElementById(`panel-${id}`);
+        if (panelNode) {
+          panelNode.innerHTML = `<div class="report-alert error">Failed to load case state: ${safe(err.message || err)}</div>`;
+        }
       }
-    }));
+    });
+
   } catch (e) {
-    node.textContent = 'Live read failed: ' + String(e).slice(0, 250);
+    node.innerHTML = `<div class="report-alert error">Live read failed: ${safe(String(e).slice(0, 250))}</div>`;
   }
 }
 

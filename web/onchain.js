@@ -19,7 +19,122 @@ const canonical = x => {const y=typeof x==="string"?JSON.parse(x):x;if(!y||typeo
 const read = async(name,args=[]) => reader.readContract({address:ADDRESS,functionName:name,args});
 const exactNum = (x,min,max) => {const n=Number(x);if(!Number.isSafeInteger(n)||n<min||n>max)throw Error(`Value must be an integer from ${min} to ${max}`);return n};
 const field = (id,label,placeholder,type="text") => `<label class="chain-field"><span class="eyebrow">${html(label)}</span><input class="input" type="${html(type)}" id="${html(id)}" placeholder="${html(placeholder)}" ${type==="number"?'step="1" min="0"':''}/></label>`;
-const report=(x,status="")=>{if(el("chain-output")){el("chain-output").textContent=typeof x==="string"?x:format(x);el("chain-output").dataset.status=status;}};
+const shortHex = (s, l = 8, r = 6) => {
+  const str = String(s || '');
+  return str.length > (l + r + 3) ? `${str.slice(0, l)}…${str.slice(-r)}` : str;
+};
+const report = (x, status = "") => {
+  const output = el("chain-output");
+  if (!output) return;
+
+  if (typeof x === "string") {
+    const isErr = status === "error";
+    output.innerHTML = `
+      <div class="report-alert ${isErr ? 'error' : status === 'success' ? 'success' : 'info'}">
+        <span style="font-size:16px">${isErr ? '⚠️' : status === 'success' ? '✅' : 'ℹ️'}</span>
+        <div style="flex:1">
+          <b>${isErr ? 'Operation Alert' : 'System Notice'}</b>
+          <div style="margin-top:4px;word-break:break-word;">${html(x)}</div>
+        </div>
+      </div>
+    `;
+    output.dataset.status = status;
+    return;
+  }
+
+  if (x && typeof x === "object") {
+    let htmlContent = '';
+    
+    if (x.transaction || x.status === "VERIFIED_FINALIZED_EXECUTION_AND_STATE") {
+      const txHash = x.transaction || x.hash || '';
+      htmlContent += `
+        <div class="tx-verified-card">
+          <div class="tx-verified-header">
+            <div class="tx-verified-title">
+              <span>⚡</span>
+              <span>GENVM EXECUTION VERIFIED & FINALIZED</span>
+            </div>
+            ${txHash ? `
+              <a href="https://explorer-studio.genlayer.com/tx/${html(txHash)}" target="_blank" rel="noopener noreferrer" class="tx-explorer-link">
+                View on Explorer ↗
+              </a>
+            ` : ''}
+          </div>
+          ${txHash ? `
+            <div>
+              <span class="meta-label">Transaction Hash</span>
+              <div class="tx-hash-display">${html(txHash)}</div>
+            </div>
+          ` : ''}
+          <div class="inspector-meta-grid">
+            ${x.action ? `
+              <div class="meta-cell">
+                <span class="meta-label">Action</span>
+                <span class="meta-value" style="color:var(--accent-lime);">${html(x.action)}</span>
+              </div>
+            ` : ''}
+            <div class="meta-cell">
+              <span class="meta-label">Consensus Status</span>
+              <span class="meta-value" style="color:var(--accent-mint);">FINALIZED</span>
+            </div>
+            <div class="meta-cell">
+              <span class="meta-label">Network</span>
+              <span class="meta-value">Studionet (61999)</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (x.case) {
+      const c = x.case;
+      htmlContent += `
+        <div style="margin-top:14px;">
+          <span class="meta-label">CANONICAL ON-CHAIN CASE STATE</span>
+          <div class="meta-cell" style="margin-top:6px;background:rgba(18,27,33,0.8);">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <b style="font-family:'JetBrains Mono',monospace;color:#fff;">${html(c.id)}</b>
+              <span class="status-badge finalized">${html(c.status)}</span>
+            </div>
+            <div style="margin-top:8px;font-size:12.5px;color:var(--text-muted);">
+              Result: <b style="color:var(--accent-lime);">${html(c.result || 'PENDING')}</b> · 
+              Budget: <b>${Number(c.gross_minor || 0).toLocaleString()}</b> minor units · 
+              Approved: <b>${Number(c.payable_minor || 0).toLocaleString()}</b>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    if (Array.isArray(x.history) && x.history.length > 0) {
+      htmlContent += `
+        <div style="margin-top:14px;">
+          <span class="meta-label">AUDIT LINEAGE (${x.history.length} EVENTS)</span>
+          <div class="audit-timeline">
+            ${x.history.map(h => `
+              <div class="audit-entry">
+                <span class="audit-dot"></span>
+                <span class="audit-action">${html(h.action || h.step || 'STATE_TRANSITION')}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-muted);">${html(shortHex(h.actor || h.sender, 6, 4))}</span>
+                <span class="audit-time">${h.timestamp ? new Date(h.timestamp * 1000).toLocaleTimeString() : ''}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    htmlContent += `
+      <details class="json-details" style="margin-top:14px;">
+        <summary class="json-summary">Raw JSON-RPC Response</summary>
+        <pre class="mono" style="margin:0;border:none;background:transparent;">${html(format(x))}</pre>
+      </details>
+    `;
+
+    output.innerHTML = htmlContent;
+    output.dataset.status = status;
+  }
+};
 const chainIsRight=()=>walletChain===61999 && addrValid(walletAddress);
 function resetWallet(reason){wallet=null;walletAddress="";walletChain=null;if(el("chain-wallet-info"))el("chain-wallet-info").textContent=reason||"Wallet disconnected"}
 const caseId=()=>val("chain-case-id");
