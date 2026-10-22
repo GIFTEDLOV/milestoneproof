@@ -4,9 +4,9 @@ import { TransactionStatus } from "genlayer-js/types";
 
 // Separate immutable deploy-and-audit binding from UI's ability to sign.
 // RELEASE_QUALIFIED is true only after verified live consensus, signed browser E2E and canonical readback.
-const ADDRESS = window.CONTRACT_ADDRESS;
+const ADDRESS = typeof window !== "undefined" ? window.CONTRACT_ADDRESS : "";
 const BOUND = /^0x[a-fA-F0-9]{40}$/.test(ADDRESS ?? "");
-const QUALIFIED = window.RELEASE_QUALIFIED === true && BOUND;
+const QUALIFIED = typeof window !== "undefined" && window.RELEASE_QUALIFIED === true && BOUND;
 const reader = createClient({ chain: studionet });
 let wallet = null, walletAddress = "", walletChain = null, pending = false;
 const el = id => document.getElementById(id);
@@ -164,6 +164,89 @@ async function afterTx(saved){
 }
 const canonicalHistory=x=>{const p=typeof x==="string"?JSON.parse(x):x;if(!Array.isArray(p))throw Error("Invalid audit history");return p};
 async function resume(){const old=txSaved();if(!old)return report("No submitted transaction to resume.","error");try{report({status:"RECOVERING_OR_PENDING",hash:old.hash});await afterTx(old)}catch(e){report(`Transaction ${old.hash} is not verified. Check its status before making any new write. ${message(e)}`,"error")}}
+
+/**
+ * Validates on-chain state machine preflight rules before wallet signature.
+ * Enforces exact parity with contracts/milestoneproof.py:
+ * 1. Challenge Preflight: permits eligible second party to challenge while status is CHALLENGED (and ASSESSED).
+ * 2. Finalization Preflight: permits first-round finalization only after the 24h challenge window has elapsed.
+ */
+export function checkTransition(action, previous, walletAddress, nowSec = Math.floor(Date.now() / 1000)) {
+  if (action === "create_case") return { allowed: true };
+  if (!previous) return { allowed: false, error: "Case record not found" };
+
+  const currentStatus = previous.status;
+  const currentRound = previous.round;
+  const lastAt = Number(previous.last_at || 0);
+  const challenges = Array.isArray(previous.challenges) ? previous.challenges : [];
+  const sender = (walletAddress || "").toLowerCase();
+  const creator = (previous.creator || "").toLowerCase();
+  const recipient = (previous.recipient || "").toLowerCase();
+  const isParty = Boolean(sender && (sender === creator || sender === recipient));
+  const hasAlreadyChallenged = challenges.some(c => (c.actor || "").toLowerCase() === sender);
+  const challengeWindowOpen = lastAt > 0 && nowSec <= lastAt + 86400;
+  const challengeWindowElapsed = lastAt > 0 && nowSec > lastAt + 86400;
+
+  switch (action) {
+    case "consent":
+      if (currentStatus !== "DRAFT" || previous.consented)
+        return { allowed: false, error: "Consent is only valid for unconsented DRAFT cases" };
+      return { allowed: true };
+
+    case "freeze":
+      if (currentStatus !== "DRAFT" || !previous.consented)
+        return { allowed: false, error: "Freezing requires a consented DRAFT case" };
+      return { allowed: true };
+
+    case "submit_evidence":
+      if (currentStatus !== "FROZEN" || previous.evidence)
+        return { allowed: false, error: "Evidence submission requires a FROZEN case without evidence" };
+      return { allowed: true };
+
+    case "attest_evidence":
+      if (currentStatus !== "EVIDENCE_LOCKED" || previous.attested)
+        return { allowed: false, error: "Attestation requires an EVIDENCE_LOCKED case not yet attested" };
+      return { allowed: true };
+
+    case "adjudicate":
+      if (!["ATTESTED", "CHALLENGED"].includes(currentStatus))
+        return { allowed: false, error: "Adjudication requires ATTESTED or CHALLENGED status" };
+      return { allowed: true };
+
+    case "challenge":
+      // Preflight Path 1: Allow eligible second party to challenge while case is CHALLENGED (or ASSESSED)
+      if (!["ASSESSED", "CHALLENGED"].includes(currentStatus))
+        return { allowed: false, error: `Challenge requires case in ASSESSED or CHALLENGED status (current: ${currentStatus})` };
+      if (currentRound !== 1)
+        return { allowed: false, error: `Challenges are only permitted during round 1 (current round: ${currentRound})` };
+      if (!isParty)
+        return { allowed: false, error: `Connected account (${shortHex(walletAddress)}) is not an eligible party (creator: ${shortHex(creator)}, recipient: ${shortHex(recipient)})` };
+      if (challenges.length >= 2)
+        return { allowed: false, error: "Both party challenge slots (max 2) are already occupied" };
+      if (hasAlreadyChallenged)
+        return { allowed: false, error: "Connected party has already submitted a challenge statement" };
+      if (!challengeWindowOpen)
+        return { allowed: false, error: "The 24-hour challenge window has expired" };
+      return { allowed: true };
+
+    case "finalize_case":
+      // Preflight Path 2: Permit first-round finalization ONLY after 24h challenge window elapses; round 2 finalizes immediately
+      if (currentStatus !== "ASSESSED")
+        return { allowed: false, error: `Finalization requires ASSESSED status (current: ${currentStatus})` };
+      if (![1, 2].includes(currentRound))
+        return { allowed: false, error: `Finalization requires completed round 1 or round 2 assessment (current round: ${currentRound})` };
+      if (currentRound === 1 && !challengeWindowElapsed) {
+        const remSec = (lastAt + 86400) - nowSec;
+        const remHrs = Math.max(0, Math.ceil(remSec / 3600));
+        return { allowed: false, error: `First-round finalization is locked until 24-hour challenge window elapses (~${remHrs}h remaining)` };
+      }
+      return { allowed: true };
+
+    default:
+      return { allowed: false, error: `Unknown action: ${action}` };
+  }
+}
+
 export const chainUI={
   render(){const extra=window.APP.label==="MILESTONEPROOF"
       ?field("gross-minor","Milestone budget (minor units)","250000","number")+field("release-numerator","Release fraction numerator","1","number")+field("release-denominator","Release fraction denominator","2","number"):"";
@@ -219,8 +302,8 @@ export const chainUI={
         }else{
           previous=canonical(await read("get_case",[id]));
         }
-        const allowed={consent:previous?.status==="DRAFT"&&!previous?.consented,freeze:previous?.status==="DRAFT"&&previous?.consented,submit_evidence:previous?.status==="FROZEN"&&!previous?.evidence,attest_evidence:previous?.status==="EVIDENCE_LOCKED"&&!previous?.attested,adjudicate:["ATTESTED","CHALLENGED"].includes(previous?.status),challenge:previous?.status==="ASSESSED"&&previous?.round<2,finalize_case:previous?.status==="ASSESSED"};
-        if(action!=="create_case"&&!allowed[action])throw Error("Invalid transition from canonical state "+previous.status);
+        const preflight = checkTransition(action, previous, walletAddress);
+        if (!preflight.allowed) throw Error(preflight.error);
         let args=[id];const note=val("chain-evidence");
         if(action==="create_case"){
           const to=val("chain-recipient"),attestor=val("chain-attestor");

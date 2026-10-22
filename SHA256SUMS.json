@@ -21,8 +21,8 @@
   "tests/test_contract.py": "b22f5e3b4b96023d87361834a897c0ff2a381dfb5454cd908317809c5480d84b",
   "web/app.js": "80fd7553cbbb35e95de69c0b508383715d7ae817a9baf4df5f01d3d2d7c57fbe",
   "web/index.html": "d6a46c840ba7bb554d8692e35f01dff05a964746cd3d30b6a84c6aff94adbc69",
-  "web/onchain.js": "d9dd146cf1f3b71e71d585f3c597b2e07060259f210bd8e5655fabbede07d328",
-  "web/package.json": "9157e6cf0bb9bdf13a10c66bc840c6f15a776ed9dfae3b9f88fdba97db59205c",
+  "web/onchain.js": "d0ea642fea804781420f16e67cbc6e7493598163e52c15996da087c7c52403d4",
+  "web/package.json": "83f940467bdc7d4f8fbebc72e8f43c506032e3eb81beda3bb60ca6a04293fb24",
   "web/styles.css": "68977ce36acefc178405d2176aa56a3357f8c35db1de0ef62cbd37e085e62980",
   "web/vercel.json": "a97de78e7b6379506e05178d5aaf634debe5f9e01bf9e2738997c8bbd623ef4a"
 }

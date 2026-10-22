@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite --host 0.0.0.0 --port 3001",
-    "check": "node --check app.js && node --check onchain.js"
+    "check": "node --check app.js && node --check onchain.js && node ../tests/test_preflight.mjs"
   },
   "dependencies": {
     "genlayer-js": "1.1.8"
