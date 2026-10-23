@@ -135,8 +135,224 @@ const report = (x, status = "") => {
     output.dataset.status = status;
   }
 };
+export const STUDIONET_CHAIN_ID = 61999;
+export const STUDIONET_CHAIN_ID_HEX = "0xf22f";
+export const STUDIONET_PARAMS = {
+  chainId: "0xf22f",
+  chainName: "GenLayer Studionet",
+  rpcUrls: ["https://studio.genlayer.com/api"],
+  nativeCurrency: {
+    name: "GEN",
+    symbol: "GEN",
+    decimals: 18
+  },
+  blockExplorerUrls: ["https://explorer-studio.genlayer.com"]
+};
+
+export function showNotification(msg, type = "info", duration = 4000) {
+  if (typeof document === "undefined") return;
+  let container = document.getElementById("toast-container");
+  if (!container) {
+    container = document.createElement("div");
+    container.id = "toast-container";
+    container.className = "toast-container";
+    container.setAttribute("aria-live", "polite");
+    document.body.appendChild(container);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast-msg ${type}`;
+  const icon = type === "error" ? "⚠️" : type === "success" ? "✅" : "ℹ️";
+  toast.innerHTML = `<span style="font-size:15px">${icon}</span><span>${html(msg)}</span>`;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(-6px)";
+    setTimeout(() => toast.remove(), 300);
+  }, duration);
+}
+
+export async function ensureStudionetNetwork(provider) {
+  if (!provider || typeof provider.request !== "function") return;
+  const currentChain = await provider.request({ method: "eth_chainId" });
+  const currentNum = typeof currentChain === "string" ? parseInt(currentChain, 16) : Number(currentChain);
+  if (currentNum === STUDIONET_CHAIN_ID) return;
+
+  try {
+    await provider.request({
+      method: "wallet_switchEthereumChain",
+      params: [{ chainId: STUDIONET_CHAIN_ID_HEX }]
+    });
+  } catch (switchError) {
+    const code = switchError?.code ?? switchError?.data?.originalError?.code;
+    if (code === 4902 || /unrecognized chain|not added|could not be found/i.test(switchError?.message || "")) {
+      await provider.request({
+        method: "wallet_addEthereumChain",
+        params: [STUDIONET_PARAMS]
+      });
+    } else {
+      throw switchError;
+    }
+  }
+}
+
+export function updateAllWalletButtons() {
+  const isConn = Boolean(walletAddress && walletChain === 61999);
+  const short = isConn ? shortHex(walletAddress) : "";
+
+  // 1. Topbar button
+  const topBtn = document.getElementById("workspace-wallet-trigger");
+  if (topBtn) {
+    if (isConn) {
+      topBtn.innerHTML = `<span class="wallet-dot"></span><span>${short}</span>`;
+      topBtn.classList.add("connected");
+      topBtn.title = `Connected: ${walletAddress} (Click to disconnect)`;
+    } else {
+      topBtn.innerHTML = `Connect Wallet ↗`;
+      topBtn.classList.remove("connected");
+      topBtn.title = "Connect your Web3 wallet (MetaMask, Rabby, etc.)";
+    }
+  }
+
+  // 2. On-chain view button
+  const chainBtn = document.getElementById("chain-wallet");
+  if (chainBtn) {
+    if (isConn) {
+      chainBtn.textContent = `Connected: ${short}`;
+      chainBtn.classList.add("cta");
+      chainBtn.classList.remove("tab");
+    } else {
+      chainBtn.textContent = "Connect wallet";
+      chainBtn.classList.remove("cta");
+      chainBtn.classList.add("tab");
+    }
+  }
+
+  // 3. On-chain view footnote
+  const chainInfo = document.getElementById("chain-wallet-info");
+  if (chainInfo) {
+    if (isConn) {
+      chainInfo.textContent = `Wallet ${walletAddress} · Studionet 61999 · ${QUALIFIED ? "writes qualified" : "writes remain locked"}`;
+    } else {
+      chainInfo.textContent = "Not connected. No wallet secrets are requested or stored.";
+    }
+  }
+}
+
 const chainIsRight=()=>walletChain===61999 && addrValid(walletAddress);
-function resetWallet(reason){wallet=null;walletAddress="";walletChain=null;if(el("chain-wallet-info"))el("chain-wallet-info").textContent=reason||"Wallet disconnected"}
+export function resetWallet(reason){
+  wallet=null;
+  walletAddress="";
+  walletChain=null;
+  updateAllWalletButtons();
+  if(el("chain-wallet-info"))el("chain-wallet-info").textContent=reason||"Wallet disconnected";
+}
+
+export async function connectWallet() {
+  if (typeof window === "undefined") return;
+  if (!window.ethereum) {
+    const err = "No Web3 wallet extension found. Please install MetaMask or Rabby to connect.";
+    showNotification(err, "error");
+    report(err, "error");
+    return;
+  }
+
+  try {
+    showNotification("Requesting wallet authorization…", "info");
+    const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+    const addr = accounts?.[0];
+    if (!addr || !addrValid(addr)) throw Error("No valid wallet account authorized");
+
+    showNotification("Verifying Studionet network (61999)…", "info");
+    await ensureStudionetNetwork(window.ethereum);
+
+    const chainHex = await window.ethereum.request({ method: "eth_chainId" });
+    const chainNum = parseInt(chainHex, 16);
+    if (chainNum !== 61999) {
+      throw Error(`Connected to chain ${chainNum}, but Studionet (61999) is required.`);
+    }
+
+    walletAddress = addr;
+    walletChain = chainNum;
+    wallet = createClient({ chain: studionet, account: addr, provider: window.ethereum });
+
+    updateAllWalletButtons();
+    showNotification(`Connected: ${shortHex(addr)} on Studionet`, "success");
+    report({
+      status: "WALLET_CONNECTED",
+      wallet: walletAddress,
+      chainId: walletChain,
+      network: "GenLayer Studionet (61999)",
+      releaseQualified: QUALIFIED
+    }, "success");
+  } catch (e) {
+    console.error("Wallet connection error:", e);
+    resetWallet("Wallet not connected: " + message(e));
+    showNotification(`Wallet connection error: ${message(e)}`, "error");
+    report(message(e), "error");
+  }
+}
+
+export function disconnectWallet() {
+  resetWallet("Wallet disconnected.");
+  showNotification("Wallet disconnected", "info");
+}
+
+export async function toggleWallet() {
+  if (walletAddress && walletChain === 61999) {
+    const ok = window.confirm(`Wallet currently connected:\n${walletAddress}\n\nDo you want to disconnect?`);
+    if (ok) disconnectWallet();
+  } else {
+    await connectWallet();
+  }
+}
+
+export async function initWalletListeners() {
+  if (typeof window === "undefined" || !window.ethereum) return;
+
+  try {
+    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+    if (accounts?.length && addrValid(accounts[0])) {
+      const chainHex = await window.ethereum.request({ method: "eth_chainId" });
+      const chainNum = parseInt(chainHex, 16);
+      if (chainNum === 61999) {
+        walletAddress = accounts[0];
+        walletChain = chainNum;
+        wallet = createClient({ chain: studionet, account: walletAddress, provider: window.ethereum });
+        updateAllWalletButtons();
+      }
+    }
+  } catch (e) {
+    console.debug("Silent account check failed:", e);
+  }
+
+  window.ethereum.on?.("accountsChanged", (accounts) => {
+    if (!accounts?.length) {
+      resetWallet("Wallet account disconnected.");
+      showNotification("Wallet disconnected", "info");
+    } else if (accounts[0].toLowerCase() !== walletAddress.toLowerCase()) {
+      walletAddress = accounts[0];
+      wallet = createClient({ chain: studionet, account: walletAddress, provider: window.ethereum });
+      updateAllWalletButtons();
+      showNotification(`Account switched: ${shortHex(walletAddress)}`, "info");
+      report(`Wallet account switched to ${walletAddress}`, "info");
+    }
+  });
+
+  window.ethereum.on?.("chainChanged", (chain) => {
+    const chainNum = parseInt(chain, 16);
+    if (chainNum !== 61999) {
+      resetWallet(`Wallet network changed to chain ${chainNum}. Reconnect to Studionet (61999).`);
+      showNotification("Please switch network back to Studionet (61999)", "error");
+    } else {
+      walletChain = chainNum;
+      if (walletAddress) {
+        wallet = createClient({ chain: studionet, account: walletAddress, provider: window.ethereum });
+        updateAllWalletButtons();
+        showNotification("Connected to Studionet (61999)", "success");
+      }
+    }
+  });
+}
 const caseId=()=>val("chain-case-id");
 const currentTxStorage=()=>`genlayer-pending-${ADDRESS?.toLowerCase()||'unset'}`;
 const txSaved=()=>{try{return JSON.parse(window.localStorage.getItem(currentTxStorage())||"null")}catch{return null}};
@@ -268,23 +484,15 @@ export const chainUI={
     el("chain-inspect")?.addEventListener("click",async()=>{try{report(canonical(await read("contract_info")),"success")}catch(e){report(message(e),"error")}});
     el("chain-read")?.addEventListener("click",async()=>{const id=caseId();if(!id)return report("Case reference required.","error");try{const [record,history]=await Promise.all([read("get_case",[id]),read("get_history",[id])]);report({case:canonical(record),history:canonicalHistory(history)},"success")}catch(e){report(message(e),"error")}});
     el("chain-resume")?.addEventListener("click",resume);
-    el("chain-wallet")?.addEventListener("click",async()=>{if(!window.ethereum)return report("EIP-1193 provider unavailable.","error");try{
-      const accounts=await window.ethereum.request({method:"eth_requestAccounts"});
-      const addr=accounts?.[0];if(!addrValid(addr))throw Error("Missing valid wallet address");
-      wallet=createClient({chain:studionet,account:addr,provider:window.ethereum});
-      await wallet.connect("studionet");
-      walletChain=parseInt(await window.ethereum.request({method:"eth_chainId"}),16);
-      if(walletChain!==61999){resetWallet("Wrong chain; expected Studionet 61999.");throw Error("Wrong network: "+walletChain)}
-      walletAddress=addr;
-      el("chain-wallet-info").textContent=`Wallet ${addr} · Studionet 61999 · ${QUALIFIED?"writes qualified":"writes remain locked"}`;
-      report({wallet:walletAddress,chainId:walletChain,releaseQualified:QUALIFIED},"success");
-    }catch(e){resetWallet("Wallet not connected");report(message(e),"error")}});
-    window.ethereum?.on?.("accountsChanged",accounts=>{if(!accounts?.length||accounts[0]?.toLowerCase()!==walletAddress.toLowerCase())resetWallet("Wallet account changed. Reconnect required.")});
-    window.ethereum?.on?.("chainChanged",chain=>{if(parseInt(chain,16)!==61999)resetWallet("Wallet network changed. Reconnect to Studionet.")});
+    el("chain-wallet")?.addEventListener("click", toggleWallet);
+    updateAllWalletButtons();
     el("chain-execute")?.addEventListener("click",async()=>{
       if(!QUALIFIED||!BOUND)return report("Writes are locked until this contract is deployed and the exact live qualification passes.","error");
       if(pending)return report("A transaction is already processing.","error");
-      if(!wallet||!chainIsRight())return report("Connect a valid Studionet account first.","error");
+      if(!wallet||!chainIsRight()){
+        showNotification("Please connect a valid Studionet wallet first.", "error");
+        return report("Connect a valid Studionet account first.","error");
+      }
       const pendingTx=txSaved();if(pendingTx)return report(`Pending transaction ${pendingTx.hash}. Resume and reconcile before any new write.`,"error");
       const id=caseId(),action=val("chain-action");if(!/^[A-Za-z0-9_-]{1,96}$/.test(id))return report("Invalid case identifier.","error");
       pending=true;let hash="";

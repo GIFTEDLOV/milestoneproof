@@ -1,5 +1,5 @@
 import assert from "node:assert";
-import { checkTransition } from "../web/onchain.js";
+import { checkTransition, ensureStudionetNetwork, STUDIONET_CHAIN_ID, STUDIONET_PARAMS } from "../web/onchain.js";
 
 const CREATOR = "0x1111111111111111111111111111111111111111";
 const RECIPIENT = "0x2222222222222222222222222222222222222222";
@@ -189,4 +189,95 @@ console.log("\n[Test 10] Finalization rejected when status is not ASSESSED (e.g.
 
 console.log("\n==============================================");
 console.log("🎉 ALL PREFLIGHT TRANSITION TESTS PASSED (10/10)");
+console.log("==============================================");
+
+// ----------------------------------------------------
+// WALLET & NETWORK AUTO-SWITCHING TESTS
+// ----------------------------------------------------
+console.log("\n=== RUNNING WALLET & NETWORK TESTS ===");
+
+console.log("\n[Test 11] ensureStudionetNetwork does not switch if already on Studionet (61999)");
+{
+  let switchCalled = false;
+  const mockProvider = {
+    async request({ method }) {
+      if (method === "eth_chainId") return "0xf22f";
+      if (method === "wallet_switchEthereumChain") switchCalled = true;
+      throw new Error(`Unexpected method ${method}`);
+    }
+  };
+  await ensureStudionetNetwork(mockProvider);
+  assert.strictEqual(switchCalled, false, "Should not request switch when already on Studionet");
+  console.log("✓ No switch requested when on chain 61999");
+}
+
+console.log("\n[Test 12] ensureStudionetNetwork switches chain if on Ethereum Mainnet (1)");
+{
+  let switchedTo = null;
+  const mockProvider = {
+    async request({ method, params }) {
+      if (method === "eth_chainId") return "0x1";
+      if (method === "wallet_switchEthereumChain") {
+        switchedTo = params?.[0]?.chainId;
+        return null;
+      }
+      throw new Error(`Unexpected method ${method}`);
+    }
+  };
+  await ensureStudionetNetwork(mockProvider);
+  assert.strictEqual(switchedTo, "0xf22f", "Should switch to Studionet hex 0xf22f");
+  console.log("✓ Correctly requested switch to 0xf22f");
+}
+
+console.log("\n[Test 13] ensureStudionetNetwork adds chain if 4902 (unrecognized chain) returned");
+{
+  let addedParams = null;
+  const mockProvider = {
+    async request({ method, params }) {
+      if (method === "eth_chainId") return "0x1";
+      if (method === "wallet_switchEthereumChain") {
+        const err = new Error("Unrecognized chain ID");
+        err.code = 4902;
+        throw err;
+      }
+      if (method === "wallet_addEthereumChain") {
+        addedParams = params?.[0];
+        return null;
+      }
+      throw new Error(`Unexpected method ${method}`);
+    }
+  };
+  await ensureStudionetNetwork(mockProvider);
+  assert.ok(addedParams, "Should call wallet_addEthereumChain");
+  assert.strictEqual(addedParams.chainId, "0xf22f");
+  assert.strictEqual(addedParams.chainName, "GenLayer Studionet");
+  console.log("✓ Correctly fell back to wallet_addEthereumChain with Studionet params");
+}
+
+console.log("\n[Test 14] ensureStudionetNetwork surfaces error when user rejects chain switch");
+{
+  const mockProvider = {
+    async request({ method }) {
+      if (method === "eth_chainId") return "0x1";
+      if (method === "wallet_switchEthereumChain") {
+        const err = new Error("User rejected the request");
+        err.code = 4001;
+        throw err;
+      }
+      throw new Error(`Unexpected method ${method}`);
+    }
+  };
+  let threw = false;
+  try {
+    await ensureStudionetNetwork(mockProvider);
+  } catch (err) {
+    threw = true;
+    assert.strictEqual(err.code, 4001);
+  }
+  assert.strictEqual(threw, true, "Should propagate rejection error");
+  console.log("✓ Cleanly propagated rejection error");
+}
+
+console.log("\n==============================================");
+console.log("🎉 ALL WALLET & NETWORK TESTS PASSED (4/4)");
 console.log("==============================================");

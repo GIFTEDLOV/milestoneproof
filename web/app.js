@@ -1,4 +1,4 @@
-import { chainUI } from './onchain.js';
+import { chainUI, toggleWallet, connectWallet, initWalletListeners, updateAllWalletButtons } from './onchain.js';
 
 const $ = s => document.querySelector(s);
 const safe = x => String(x ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -204,6 +204,7 @@ function render(name) {
   if (name === 'Milestones') registry();
   $('#open-workspace')?.addEventListener('click', () => render('On-chain'));
   $('#open-process')?.addEventListener('click', () => render('Process'));
+  updateAllWalletButtons();
   window.scrollTo({ top: 0, behavior: 'instant' });
 }
 
@@ -235,9 +236,9 @@ document.querySelectorAll('[data-landing-nav]').forEach(a => {
   });
 });
 
-$('#workspace-wallet-trigger')?.addEventListener('click', () => {
-  render('On-chain');
-  document.getElementById('chain-wallet')?.click();
+$('#workspace-wallet-trigger')?.addEventListener('click', (e) => {
+  e.preventDefault();
+  toggleWallet();
 });
 
 document.querySelectorAll('[data-page]').forEach(b => b.addEventListener('click', () => render(b.dataset.page)));
@@ -452,3 +453,6 @@ if (initialPath.startsWith('/app') || hashMap[initialHash]) {
 } else {
   showLanding(false);
 }
+
+// Initialize wallet listeners and check for active session
+initWalletListeners();
